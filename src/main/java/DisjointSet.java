@@ -56,15 +56,24 @@ public class DisjointSet {
     }
 
     public static void main(String[] args) {
-        DisjointSet ds = new DisjointSet(5);
-        ds.union(0, 2);
-        ds.union(4, 2);
-        ds.union(3, 1);
-        System.out.println(ds.connected(4,0)); // true
-        System.out.println(ds.connected(1,0)); // false
-        System.out.println(ds.count()); // 2
-        System.out.println(ds.size(ds.find(4))); // 3
-        System.out.println(ds.size(ds.find(1))); // 2
+        // Kruskal's minimum spanning tree
+        int[][] weightSortedEdges = {{7, 6}, {8, 2}, {6, 5}, {0, 1}, {2, 5}, {8, 6}, {2, 3}, {7, 8}, {0, 7}, {1, 2}, {3, 4}, {5, 4}, {1, 7}, {3, 5}};
+        int[][] selectedEdges = new int[8][2];
+        DisjointSet ds = new DisjointSet(9);
+        int i = 0;
+        int connectedVertices = 0;
+        while (i < weightSortedEdges.length && connectedVertices < 9) {
+            int[] pair = weightSortedEdges[i];
+            if (!ds.connected(pair[0], pair[1])) {
+                selectedEdges[connectedVertices] = pair;
+                ds.union(pair[0], pair[1]);
+                connectedVertices++;
+            }
+            i++;
+        }
+        for (int[] pair : selectedEdges) {
+            System.out.println(String.format("%s --- %s", pair[0], pair[1])); // MST
+        }
     }
 
 }
