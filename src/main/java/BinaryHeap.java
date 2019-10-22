@@ -1,11 +1,17 @@
-// TODO use hash table to track element indices for faster remove
 public class BinaryHeap<T extends Comparable<T>> {
-    private int last;
+    private int last = -1;
     private T[] array;
+
+    BinaryHeap(T[] elements) {
+        array = elements;
+        last = elements.length - 1;
+        // O(n) heapify
+        int lastNoneLeaf = findParent(last);
+        for (int i = lastNoneLeaf; i >= 0; i--) shiftDown(i);
+    }
 
     BinaryHeap(int size) {
         array = (T[]) new Comparable[size];
-        last = -1;
     }
 
     public T poll() {
@@ -36,7 +42,7 @@ public class BinaryHeap<T extends Comparable<T>> {
                 shiftUp(current);
             } else if (
                     (leftChild <= last && array[current].compareTo(array[leftChild]) < 0) ||
-                            (rightChild <=last && array[current].compareTo(array[rightChild]) < 0)
+                            (rightChild <= last && array[current].compareTo(array[rightChild]) < 0)
             ) {
                 shiftDown(current);
             }
@@ -135,7 +141,9 @@ public class BinaryHeap<T extends Comparable<T>> {
         System.out.println(bh.poll());
         System.out.println(bh.poll());
         System.out.println(bh.poll());
-        System.out.println(bh.poll());
-        System.out.println(bh.poll());
+
+        Integer[] elements = new Integer[]{new Integer(5), new Integer(3), new Integer(17), new Integer(10), new Integer(84), new Integer(19), new Integer(6), new Integer(22), new Integer(9)};
+        BinaryHeap bh2 = new BinaryHeap(elements);
+        bh2.print();
     }
 }
