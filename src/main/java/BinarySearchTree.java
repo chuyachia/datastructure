@@ -1,28 +1,49 @@
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 
-public class BinarySearchTree {
+public class BinarySearchTree<T extends Comparable<T>> {
     private class Node {
-        private int data;
+        private T data;
         private Node leftChild;
         private Node rightChild;
 
-        public Node(int data) {
+        public Node(T data) {
             this.data = data;
         }
     }
 
-    private Node root;
+    private class TraversalIterator implements Iterator<T> {
+        private Queue<T> queue;
 
-    public void add(int data) {
-        root = addToChild(root, data);
+        TraversalIterator(Queue queue) {
+            this.queue = queue;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return queue.size() > 0;
+        }
+
+        @Override
+        public T next() {
+            return queue.poll();
+        }
     }
 
-    private Node addToChild(Node n, int data) {
+    private Node root;
+    private int size = 0;
+
+    public void add(T data) {
+        root = addToChild(root, data);
+        size++;
+    }
+
+    private Node addToChild(Node n, T data) {
         if (n == null) {
             n = new Node(data);
         } else {
-            if (data <= n.data) {
+            if (data.compareTo(n.data) <= 0) {
                 n.leftChild = addToChild(n.leftChild, data);
             } else {
                 n.rightChild = addToChild(n.rightChild, data);
@@ -32,31 +53,49 @@ public class BinarySearchTree {
         return n;
     }
 
-    public boolean remove(int data) {
-        root = findToRemove(root, data);
-        return true;
+    public void remove(T data) {
+        root = removeAndReplace(root, data);
+        size--;
     }
 
-    private Node findToRemove(Node n, int data) {
-        if (n.data > data) {
-            n.leftChild = findToRemove(n.leftChild, data);
-        } else if (n.data < data) {
-            n.rightChild = findToRemove(n.rightChild,data);
+    private Node removeAndReplace(Node n, T data) {
+        if (n.data.compareTo(data) > 0) {
+            // If target data is smaller than current node
+            // Probably it's the left child that should be removed
+            n.leftChild = removeAndReplace(n.leftChild, data);
+        } else if (n.data.compareTo(data) < 0) {
+            n.rightChild = removeAndReplace(n.rightChild, data);
         } else {
-            if (n.leftChild == null && n.rightChild ==null) {
-                n =  null;
+            if (n.leftChild == null && n.rightChild == null) {
+                // If the node with target data does not have any child
+                // Simply remove it, no replacement needed
+                n = null;
             } else if (n.leftChild == null) {
+                // If the node with target data has a right child
+                // Replace the node with its right child node
                 return n.rightChild;
             } else if (n.rightChild == null) {
                 return n.leftChild;
             } else {
-                int replacementValue = maxNode(n.leftChild).data;
+                // If it has both
+                // Swap the value with the max of left sub tree or the min of right sub tree
+                // Then remove the node whose value is swapped
+                T replacementValue = maxNode(n.leftChild).data;
                 n.data = replacementValue;
-                n.leftChild = findToRemove(n.leftChild,replacementValue);
+                n.leftChild = removeAndReplace(n.leftChild, replacementValue);
             }
         }
 
         return n;
+    }
+
+    public int height() {
+        return subTreeHeight(root);
+    }
+
+    private int subTreeHeight(Node n) {
+        if (n == null) return 0;
+        return 1 + Math.max(subTreeHeight(n.leftChild), subTreeHeight(n.rightChild));
     }
 
     private Node minNode(Node root) {
@@ -77,48 +116,57 @@ public class BinarySearchTree {
         return current;
     }
 
-    public void preOrderTraversal() {
-        preOrder(root);
+    public Iterator<T> preOrderTraversal() {
+        Queue<T> queue = new LinkedList<T>();
+        preOrder(queue, root);
+        return new TraversalIterator(queue);
     }
 
-    private void preOrder(Node n) {
+    private void preOrder(Queue<T> q, Node n) {
         if (n == null) return;
-        System.out.println(n.data);
-        preOrder(n.leftChild);
-        preOrder(n.rightChild);
+        q.add(n.data);
+        preOrder(q, n.leftChild);
+        preOrder(q, n.rightChild);
     }
 
-    public void inOrderTraversal() {
-        inOrder(root);
+    public Iterator<T> inOrderTraversal() {
+        Queue<T> queue = new LinkedList<T>();
+        inOrder(queue, root);
+        return new TraversalIterator(queue);
     }
 
-    private void inOrder(Node n) {
+    private void inOrder(Queue<T> q, Node n) {
         if (n == null) return;
-        inOrder(n.leftChild);
-        System.out.println(n.data);
-        inOrder(n.rightChild);
+        inOrder(q, n.leftChild);
+        q.add(n.data);
+        inOrder(q, n.rightChild);
     }
 
-    public void postOrderTraversal() {
-        postOrder(root);
+    public Iterator<T> postOrderTraversal() {
+        Queue<T> queue = new LinkedList<T>();
+        postOrder(queue, root);
+        return new TraversalIterator(queue);
     }
 
-    private void postOrder(Node n) {
+    private void postOrder(Queue<T> q, Node n) {
         if (n == null) return;
-        postOrder(n.leftChild);
-        System.out.println(n.data);
-        postOrder(n.rightChild);
+        postOrder(q, n.leftChild);
+        postOrder(q, n.rightChild);
+        q.add(n.data);
     }
 
-    public void levalOrderTraversal() {
-        Queue<Node> queue = new LinkedList<Node>();
+    public Iterator<T> levelOrderTraversal() {
+        Queue<Node> queue = new LinkedList<>();
+        Queue<T> resultQueue = new LinkedList<>();
         queue.add(root);
         while (queue.size() > 0) {
             Node node = queue.poll();
-            System.out.println(node.data);
+            resultQueue.add(node.data);
             if (node.leftChild != null) queue.add(node.leftChild);
             if (node.rightChild != null) queue.add(node.rightChild);
         }
+
+        return new TraversalIterator(resultQueue);
     }
 
     public static void main(String[] args) {
@@ -128,15 +176,32 @@ public class BinarySearchTree {
             bst.add(i);
         }
         System.out.println("Preorder traversal");
-        bst.preOrderTraversal();
+        Iterator<Integer> preIterator = bst.preOrderTraversal();
+        while (preIterator.hasNext()) {
+            System.out.println(preIterator.next());
+        }
         System.out.println("Inorder traversal");
-        bst.inOrderTraversal();
+        Iterator<Integer> inIterator = bst.inOrderTraversal();
+        while (inIterator.hasNext()) {
+            System.out.println(inIterator.next());
+        }
         System.out.println("Postorder traversal");
-        bst.postOrderTraversal();
+        Iterator<Integer> postIterator = bst.postOrderTraversal();
+        while (postIterator.hasNext()) {
+            System.out.println(postIterator.next());
+        }
         System.out.println("Level order traversal");
-        bst.levalOrderTraversal();
+        Iterator<Integer> levelIterator = bst.levelOrderTraversal();
+        while (levelIterator.hasNext()) {
+            System.out.println(levelIterator.next());
+        }
         bst.remove(20);
         System.out.println("Inorder order traversal after 20 removal");
-        bst.inOrderTraversal();
+        inIterator = bst.inOrderTraversal();
+        while (inIterator.hasNext()) {
+            System.out.println(inIterator.next());
+        }
+        System.out.println("Height");
+        System.out.println(bst.height());
     }
 }
