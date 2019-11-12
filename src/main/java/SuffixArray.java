@@ -1,21 +1,27 @@
-public class SuffixArray {
+import java.util.Iterator;
 
+public class SuffixArray implements Iterable<Integer> {
+
+    private String originalStr;
     private int[][] pairs;
     private int[] sortedIndices;
     private int[] ranks;
     private int[] sa;
     private boolean sorted;
     private int space;
+    private int len;
 
     public SuffixArray(String str) {
+        originalStr = str;
         sorted = false;
         space = 0;
-        pairs = new int[str.length()][2];
-        sortedIndices = new int[str.length()];
-        ranks = new int[str.length()];
-        sa = new int[str.length()];
-        int[] strValues = new int[str.length()];
-        for (int i = 0; i < str.length(); i++) {
+        len = str.length();
+        pairs = new int[len][2];
+        sortedIndices = new int[len];
+        ranks = new int[len];
+        sa = new int[len];
+        int[] strValues = new int[len];
+        for (int i = 0; i < len; i++) {
             strValues[i] = str.charAt(i) - 'a' + 1;
         }
         constructPairs(strValues, (int) Math.pow(2, space));
@@ -30,6 +36,22 @@ public class SuffixArray {
             sa[ranks[i]] = i;
         }
 
+    }
+
+    public int size() {
+        return len;
+    }
+
+    public int get(int index) {
+        return sa[index];
+    }
+
+    public int[] getInversed() {
+        return ranks;
+    }
+
+    public String getOriginalString() {
+        return originalStr;
     }
 
     private void constructPairs(int[] arr, int space) {
@@ -89,8 +111,33 @@ public class SuffixArray {
         if (rank == pairs.length - 1) sorted = true;
     }
 
-    public static void main(String[] args) {
-        SuffixArray sa = new SuffixArray("trollolol");
+    @Override
+    public Iterator<Integer> iterator() {
+        return new Iterator<Integer>() {
+            int index = 0;
+
+            @Override
+            public boolean hasNext() {
+                return index < len;
+            }
+
+            @Override
+            public Integer next() {
+                if (index >= len) return null;
+                return sa[index++];
+            }
+        };
     }
 
+    public static void main(String[] args) {
+        SuffixArray sa = new SuffixArray("trollolol");
+        for (int i : sa) {
+            System.out.println(i);
+        }
+        System.out.println("Inversed SA");
+        int[] inversedSA = sa.getInversed();
+        for (int i : inversedSA) {
+            System.out.println(i);
+        }
+    }
 }
