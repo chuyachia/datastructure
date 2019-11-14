@@ -42,15 +42,18 @@ public class HashTable<K, V> implements Iterable<K> {
         int hash = normalizedHash(key.hashCode());
         int probeOffset = 0;
         int index = probeNext(hash, probeOffset);
-        while (keys[index] != null && keys[index] != TOMBSTONE && !keys[index].equals(key)) {
-            index = probeNext(hash, ++probeOffset);
-        }
-        if (keys[index] != TOMBSTONE) {
-            usedBlocks++;
+        boolean keyAlreadyExists = key.equals(keys[index]);
+        if (!keyAlreadyExists) {
+            while (keys[index] != null && keys[index] != TOMBSTONE) {
+                index = probeNext(hash, ++probeOffset);
+            }
+            if (keys[index] != TOMBSTONE) {
+                usedBlocks++;
+            }
+            usedIndices++;
         }
         keys[index] = key;
         values[index] = value;
-        usedIndices++;
     }
 
     public boolean remove(K key) {
@@ -141,8 +144,8 @@ public class HashTable<K, V> implements Iterable<K> {
     public static void main(String[] args) {
         HashTable<String, Integer> table = new HashTable<>();
         table.put("a", 1);
-        table.put("b", 1);
         table.put("a", 2);
+        table.put("b", 1);
         table.put("c", 4);
         table.put("d", 23);
         table.put("e", 76);
