@@ -46,6 +46,10 @@ public class SuffixArray implements Iterable<Integer> {
         return sa[index];
     }
 
+    public int[] getArray() {
+        return sa;
+    }
+
     public int[] getInversed() {
         return ranks;
     }

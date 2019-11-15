@@ -1,6 +1,6 @@
 import java.util.Iterator;
 
-public class LongestCommonPrefixArray implements Iterable<Integer>{
+public class LongestCommonPrefixArray implements Iterable<Integer> {
 
     private int length;
     private int[] inversedSA;
@@ -13,14 +13,14 @@ public class LongestCommonPrefixArray implements Iterable<Integer>{
         inversedSA = sa.getInversed();
         int accumulatedCP = 0;
         for (int i : inversedSA) {
-            if (i == length-1) {
+            if (i == length - 1) {
                 lcp[i] = 0;
                 continue;
             }
-            int currentSuffix =sa.get(i);
+            int currentSuffix = sa.get(i);
             int nextSuffix = sa.get(i + 1);
             while (currentSuffix + accumulatedCP < length && nextSuffix + accumulatedCP < length
-                    && str.charAt(currentSuffix+accumulatedCP) == str.charAt(nextSuffix+accumulatedCP))
+                    && str.charAt(currentSuffix + accumulatedCP) == str.charAt(nextSuffix + accumulatedCP))
                 accumulatedCP++;
 
             lcp[i] = accumulatedCP;
@@ -28,6 +28,10 @@ public class LongestCommonPrefixArray implements Iterable<Integer>{
             if (accumulatedCP > 0)
                 accumulatedCP--;
         }
+    }
+
+    public int[] getArray() {
+        return lcp;
     }
 
     @Override
@@ -50,10 +54,22 @@ public class LongestCommonPrefixArray implements Iterable<Integer>{
 
 
     public static void main(String[] args) {
-        SuffixArray sa = new SuffixArray("banana");
-        LongestCommonPrefixArray lcp = new LongestCommonPrefixArray(sa);
-        for (int i : lcp) {
-            System.out.println(i);
+        // Longest repeated substrings
+        String str1 = "abracadabra";
+        SuffixArray sa1 = new SuffixArray(str1);
+        LongestCommonPrefixArray lcp1 = new LongestCommonPrefixArray(sa1);
+        int[] lcpArray1 = lcp1.getArray();
+        String lrs = "";
+        for (int i = 0; i < lcpArray1.length; i++) {
+            int cp = lcpArray1[i];
+            if (cp > lrs.length()) {
+                lrs = str1.substring(sa1.get(i), sa1.get(i) + cp);
+            }
         }
+
+        System.out.println(lrs); // abra
+
+        // TODO Longest common substring between at least n strings in m strings
+        // Suffix array need to support special character to separate strings
     }
 }
