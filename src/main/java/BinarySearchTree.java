@@ -3,10 +3,10 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 public class BinarySearchTree<T extends Comparable<T>> {
-    private class Node {
-        private T data;
-        private Node leftChild;
-        private Node rightChild;
+    protected class Node {
+        public T data;
+        public Node leftChild;
+        public Node rightChild;
 
         public Node(T data) {
             this.data = data;
@@ -31,8 +31,8 @@ public class BinarySearchTree<T extends Comparable<T>> {
         }
     }
 
-    private Node root;
-    private int size = 0;
+    protected Node root;
+    protected int size = 0;
 
     public void add(T data) {
         root = addToChild(root, data);
@@ -41,7 +41,7 @@ public class BinarySearchTree<T extends Comparable<T>> {
 
     private Node addToChild(Node n, T data) {
         if (n == null) {
-            n = new Node(data);
+            return new Node(data);
         } else {
             if (data.compareTo(n.data) <= 0) {
                 n.leftChild = addToChild(n.leftChild, data);
@@ -59,6 +59,7 @@ public class BinarySearchTree<T extends Comparable<T>> {
     }
 
     private Node removeAndReplace(Node n, T data) {
+        if (n == null) return null;
         if (n.data.compareTo(data) > 0) {
             // If target data is smaller than current node
             // Probably it's the left child that should be removed
@@ -89,16 +90,16 @@ public class BinarySearchTree<T extends Comparable<T>> {
         return n;
     }
 
-    public int height() {
+    protected int height() {
         return subTreeHeight(root);
     }
 
-    private int subTreeHeight(Node n) {
-        if (n == null) return 0;
+    protected int subTreeHeight(Node n) {
+        if (n == null) return -1;
         return 1 + Math.max(subTreeHeight(n.leftChild), subTreeHeight(n.rightChild));
     }
 
-    private Node minNode(Node root) {
+    protected Node minNode(Node root) {
         Node current = root;
         while (current.leftChild != null) {
             current = current.leftChild;
@@ -107,7 +108,7 @@ public class BinarySearchTree<T extends Comparable<T>> {
         return current;
     }
 
-    private Node maxNode(Node root) {
+    protected Node maxNode(Node root) {
         Node current = root;
         while (current.rightChild != null) {
             current = current.rightChild;
