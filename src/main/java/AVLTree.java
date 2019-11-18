@@ -54,25 +54,26 @@ public class AVLTree<T extends Comparable<T>> extends BinarySearchTree<T> {
     }
 
     private Node balance(Node n) {
+        // TODO save balanceFactor in Node so we don't recalculate for example in balanceFactor(n.leftChild)
         if (n == null) return null;
         int balanceFactor = balanceFactor(n);
         if (balanceFactor == -2) {
             if (balanceFactor(n.leftChild) <= 0) {
                 // left left case
-                n = rightRotate(n, n.data);
+                n = rightRotate(n);
             } else {
                 // left right case
-                n = leftRotate(n, n.data);
-                n = rightRotate(n, n.data);
+                n.leftChild = leftRotate(n.leftChild);
+                n = rightRotate(n);
             }
         } else if (balanceFactor == 2) {
             if (balanceFactor(n.rightChild) >= 0) {
                 // right right case
-                n = leftRotate(n, n.data);
+                n = leftRotate(n);
             } else {
                 // right left case
-                n = rightRotate(n, n.data);
-                n = leftRotate(n, n.data);
+                n.rightChild = rightRotate(n.rightChild);
+                n = leftRotate(n);
             }
         }
 
@@ -80,36 +81,20 @@ public class AVLTree<T extends Comparable<T>> extends BinarySearchTree<T> {
     }
 
 
-    private Node rightRotate(Node n, T data) {
-        if (n.data.compareTo(data) > 0) {
-            n.leftChild = rightRotate(n.leftChild, data);
-        } else if (n.data.compareTo(data) < 0) {
-            n.rightChild = rightRotate(n.rightChild, data);
-        } else {
-            Node leftChild = n.leftChild;
-            n.leftChild = leftChild.rightChild;
-            leftChild.rightChild = n;
+    private Node rightRotate(Node n) {
+        Node leftChild = n.leftChild;
+        n.leftChild = leftChild.rightChild;
+        leftChild.rightChild = n;
 
-            return leftChild;
-        }
-
-        return n;
+        return leftChild;
     }
 
-    private Node leftRotate(Node n, T data) {
-        if (n.data.compareTo(data) > 0) {
-            n.leftChild = leftRotate(n.leftChild, data);
-        } else if (n.data.compareTo(data) < 0) {
-            n.rightChild = leftRotate(n.rightChild, data);
-        } else {
-            Node rightChild = n.rightChild;
-            n.rightChild = rightChild.leftChild;
-            rightChild.leftChild = n;
+    private Node leftRotate(Node n) {
+        Node rightChild = n.rightChild;
+        n.rightChild = rightChild.leftChild;
+        rightChild.leftChild = n;
 
-            return rightChild;
-        }
-
-        return n;
+        return rightChild;
     }
 
     public static void main(String[] args) {
@@ -123,6 +108,7 @@ public class AVLTree<T extends Comparable<T>> extends BinarySearchTree<T> {
         while (levelIterator.hasNext()) {
             System.out.println(levelIterator.next());
         }
+        avl.remove(1);
         avl.remove(5);
         System.out.println("Level order traversal after removing 5");
         Iterator<Integer> levelIterator2 = avl.levelOrderTraversal();
